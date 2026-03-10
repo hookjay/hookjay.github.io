@@ -346,6 +346,267 @@
       padding: 0.3rem 0.8rem;
     }
 
+    /* ── SAMPLE APPS ── */
+    .sample-apps {
+      background: var(--navy);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .sample-apps-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .sample-apps-header {
+      text-align: center;
+      margin-bottom: 4rem;
+    }
+    .sample-apps-header p.subtitle {
+      max-width: 600px;
+      margin: 0 auto;
+      color: rgba(240,237,230,0.6);
+      font-size: 1rem;
+      line-height: 1.7;
+    }
+    .app-showcase {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2.5rem;
+    }
+    .app-card {
+      background: var(--black);
+      border: 1px solid var(--border);
+      overflow: hidden;
+      transition: border-color 0.3s, transform 0.3s;
+      position: relative;
+    }
+    .app-card:hover {
+      border-color: rgba(245,166,35,0.4);
+      transform: translateY(-4px);
+    }
+    .app-card-browser {
+      background: rgba(255,255,255,0.03);
+      padding: 0.6rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .browser-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: rgba(245,166,35,0.3);
+    }
+    .browser-dot:nth-child(2) { background: rgba(245,166,35,0.2); }
+    .browser-dot:nth-child(3) { background: rgba(245,166,35,0.1); }
+    .browser-url {
+      margin-left: 0.75rem;
+      font-size: 0.65rem;
+      color: var(--muted);
+      letter-spacing: 0.05em;
+      background: rgba(255,255,255,0.03);
+      padding: 0.25rem 0.75rem;
+      border-radius: 3px;
+      flex: 1;
+    }
+    .app-card-visual {
+      height: 220px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    /* NBA App Visual */
+    .nba-visual {
+      background: linear-gradient(135deg, #0d1117 0%, #1a1025 50%, #0d1117 100%);
+    }
+    .nba-visual-grid {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 1px;
+      padding: 1rem;
+      opacity: 0.9;
+    }
+    .nba-stat-box {
+      background: rgba(245,166,35,0.04);
+      border: 1px solid rgba(245,166,35,0.08);
+      padding: 0.75rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+    .nba-stat-box .stat-label {
+      font-size: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--muted);
+      margin-bottom: 0.3rem;
+    }
+    .nba-stat-box .stat-value {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.4rem;
+      color: var(--amber);
+    }
+    .nba-stat-box .stat-value.green { color: #4ade80; }
+    .nba-stat-box .stat-value.red { color: #f87171; }
+    .nba-chart-bars {
+      position: absolute;
+      bottom: 0.75rem;
+      left: 1rem;
+      right: 1rem;
+      height: 40px;
+      display: flex;
+      align-items: flex-end;
+      gap: 3px;
+    }
+    .nba-chart-bar {
+      flex: 1;
+      background: linear-gradient(to top, rgba(245,166,35,0.3), rgba(245,166,35,0.08));
+      border-radius: 2px 2px 0 0;
+    }
+    /* Spa App Visual */
+    .spa-visual {
+      background: linear-gradient(135deg, #0d1117 0%, #0d1a17 50%, #0d1117 100%);
+    }
+    .spa-visual-layout {
+      position: absolute;
+      inset: 0;
+      padding: 1rem;
+      display: grid;
+      grid-template-columns: 120px 1fr;
+      gap: 0.75rem;
+      opacity: 0.9;
+    }
+    .spa-sidebar {
+      background: rgba(245,166,35,0.03);
+      border: 1px solid rgba(245,166,35,0.08);
+      padding: 0.75rem 0.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .spa-nav-item {
+      font-size: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      padding: 0.35rem 0.5rem;
+      border-radius: 3px;
+    }
+    .spa-nav-item.active {
+      background: rgba(245,166,35,0.1);
+      color: var(--amber);
+    }
+    .spa-main {
+      display: grid;
+      grid-template-rows: auto 1fr;
+      gap: 0.5rem;
+    }
+    .spa-calendar-header {
+      background: rgba(245,166,35,0.04);
+      border: 1px solid rgba(245,166,35,0.08);
+      padding: 0.5rem;
+      font-size: 0.55rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--amber);
+      text-align: center;
+    }
+    .spa-calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      gap: 3px;
+    }
+    .spa-slot {
+      background: rgba(245,166,35,0.03);
+      border: 1px solid rgba(245,166,35,0.06);
+      border-radius: 2px;
+      position: relative;
+    }
+    .spa-slot.booked::after {
+      content: '';
+      position: absolute;
+      inset: 3px;
+      background: rgba(245,166,35,0.15);
+      border-radius: 2px;
+    }
+    .spa-slot.booked-alt::after {
+      content: '';
+      position: absolute;
+      inset: 3px;
+      background: rgba(74,222,128,0.12);
+      border-radius: 2px;
+    }
+    .app-card-body {
+      padding: 2rem 2.5rem;
+    }
+    .app-card-type {
+      font-size: 0.6rem;
+      font-weight: 500;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin-bottom: 0.75rem;
+    }
+    .app-card-body h3 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.8rem;
+      letter-spacing: 0.04em;
+      margin-bottom: 0.75rem;
+      color: var(--white);
+    }
+    .app-card-body p {
+      font-size: 0.9rem;
+      color: rgba(240,237,230,0.6);
+      line-height: 1.7;
+      margin-bottom: 1.25rem;
+    }
+    .app-features {
+      list-style: none;
+      margin-bottom: 1.5rem;
+    }
+    .app-features li {
+      font-size: 0.8rem;
+      color: rgba(240,237,230,0.55);
+      padding: 0.35rem 0;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    .app-features li::before {
+      content: '→';
+      color: var(--amber);
+      font-weight: 700;
+      font-size: 0.75rem;
+    }
+    .app-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.75rem;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--amber);
+      text-decoration: none;
+      border: 1px solid var(--amber);
+      padding: 0.55rem 1.3rem;
+      transition: background 0.2s, color 0.2s;
+    }
+    .app-link:hover {
+      background: var(--amber);
+      color: var(--black);
+    }
+    @media (max-width: 900px) {
+      .app-showcase { grid-template-columns: 1fr; }
+      .app-card-body { padding: 1.5rem; }
+      .spa-visual-layout { grid-template-columns: 80px 1fr; }
+    }
+
     /* ── WHY NOW ── */
     .why-now {
       background: linear-gradient(135deg, rgba(245,166,35,0.06) 0%, transparent 60%), var(--navy);
@@ -528,7 +789,10 @@
   <!-- NAV -->
   <nav id="nav">
     <a href="#" class="logo">Right Hook <span>Data</span></a>
-    <a href="mailto:jay@righthookdata.com?subject=Let%27s%20Talk" class="cta-nav">Let's Talk</a>
+    <div style="display:flex;align-items:center;gap:2rem;">
+      <a href="#sample-apps" style="font-size:0.8rem;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:rgba(240,237,230,0.6);text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='var(--amber)'" onmouseout="this.style.color='rgba(240,237,230,0.6)'">Sample Apps</a>
+      <a href="mailto:jay@righthookdata.com?subject=Let%27s%20Talk" class="cta-nav">Let's Talk</a>
+    </div>
   </nav>
 
   <!-- HERO -->
@@ -611,6 +875,138 @@
           <p>You have the data. We build the infrastructure and dashboards to make it actually useful — so decisions get made on facts, not gut feeling or outdated reports.</p>
           <span class="service-tag">Dashboards · Data Pipelines · Analytics</span>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SAMPLE APPS -->
+  <section class="sample-apps" id="sample-apps">
+    <div class="sample-apps-inner">
+      <div class="sample-apps-header reveal">
+        <p class="label">See It In Action</p>
+        <h2 class="section-title">Sample <em>Apps.</em></h2>
+        <p class="subtitle">We don't just talk about what we build — we show it. Explore live applications that demonstrate the kind of custom software we deliver.</p>
+      </div>
+      <div class="app-showcase">
+
+        <!-- NBA Courtside App -->
+        <div class="app-card reveal">
+          <div class="app-card-browser">
+            <div class="browser-dot"></div>
+            <div class="browser-dot"></div>
+            <div class="browser-dot"></div>
+            <span class="browser-url">courtside.righthookdata.com</span>
+          </div>
+          <div class="app-card-visual nba-visual">
+            <div class="nba-visual-grid">
+              <div class="nba-stat-box">
+                <span class="stat-label">Spread</span>
+                <span class="stat-value">-4.5</span>
+              </div>
+              <div class="nba-stat-box">
+                <span class="stat-label">ML Edge</span>
+                <span class="stat-value green">+7.2%</span>
+              </div>
+              <div class="nba-stat-box">
+                <span class="stat-label">Market</span>
+                <span class="stat-value">62%</span>
+              </div>
+              <div class="nba-stat-box">
+                <span class="stat-label">Over/Under</span>
+                <span class="stat-value">218.5</span>
+              </div>
+              <div class="nba-stat-box">
+                <span class="stat-label">Prediction</span>
+                <span class="stat-value green">W</span>
+              </div>
+              <div class="nba-stat-box">
+                <span class="stat-label">Confidence</span>
+                <span class="stat-value">84%</span>
+              </div>
+            </div>
+            <div class="nba-chart-bars">
+              <div class="nba-chart-bar" style="height:60%"></div>
+              <div class="nba-chart-bar" style="height:80%"></div>
+              <div class="nba-chart-bar" style="height:45%"></div>
+              <div class="nba-chart-bar" style="height:90%"></div>
+              <div class="nba-chart-bar" style="height:70%"></div>
+              <div class="nba-chart-bar" style="height:55%"></div>
+              <div class="nba-chart-bar" style="height:85%"></div>
+              <div class="nba-chart-bar" style="height:40%"></div>
+              <div class="nba-chart-bar" style="height:75%"></div>
+              <div class="nba-chart-bar" style="height:65%"></div>
+              <div class="nba-chart-bar" style="height:95%"></div>
+              <div class="nba-chart-bar" style="height:50%"></div>
+            </div>
+          </div>
+          <div class="app-card-body">
+            <p class="app-card-type">AI + Data Intelligence</p>
+            <h3>NBA Courtside Analytics</h3>
+            <p>A real-time NBA analytics platform that combines live scores, betting market data, and advanced machine learning to surface potential edges — all in one dashboard.</p>
+            <ul class="app-features">
+              <li>Live NBA scores and game data</li>
+              <li>Betting percentages and prediction market tracking</li>
+              <li>Machine learning models for edge detection</li>
+              <li>Real-time odds comparison across markets</li>
+            </ul>
+            <a href="https://courtside.righthookdata.com/" target="_blank" rel="noopener" class="app-link">Launch App →</a>
+          </div>
+        </div>
+
+        <!-- Spa Management App -->
+        <div class="app-card reveal reveal-delay-1">
+          <div class="app-card-browser">
+            <div class="browser-dot"></div>
+            <div class="browser-dot"></div>
+            <div class="browser-dot"></div>
+            <span class="browser-url">spamanagement.righthookdata.com</span>
+          </div>
+          <div class="app-card-visual spa-visual">
+            <div class="spa-visual-layout">
+              <div class="spa-sidebar">
+                <div class="spa-nav-item active">Dashboard</div>
+                <div class="spa-nav-item">Appointments</div>
+                <div class="spa-nav-item">Schedule</div>
+                <div class="spa-nav-item">Clients</div>
+                <div class="spa-nav-item">Transactions</div>
+                <div class="spa-nav-item">Reports</div>
+              </div>
+              <div class="spa-main">
+                <div class="spa-calendar-header">Today's Schedule — March 2026</div>
+                <div class="spa-calendar-grid">
+                  <div class="spa-slot booked"></div>
+                  <div class="spa-slot"></div>
+                  <div class="spa-slot booked-alt"></div>
+                  <div class="spa-slot booked"></div>
+                  <div class="spa-slot"></div>
+                  <div class="spa-slot booked-alt"></div>
+                  <div class="spa-slot booked"></div>
+                  <div class="spa-slot"></div>
+                  <div class="spa-slot"></div>
+                  <div class="spa-slot booked"></div>
+                  <div class="spa-slot"></div>
+                  <div class="spa-slot booked-alt"></div>
+                  <div class="spa-slot booked"></div>
+                  <div class="spa-slot booked"></div>
+                  <div class="spa-slot"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="app-card-body">
+            <p class="app-card-type">Custom Business Software</p>
+            <h3>Spa Management Suite</h3>
+            <p>A complete spa operations platform built from the ground up — everything a spa needs to run day-to-day without stitching together five different SaaS products.</p>
+            <ul class="app-features">
+              <li>Appointment booking and client management</li>
+              <li>Staff scheduling and availability tracking</li>
+              <li>Point-of-sale and transaction processing</li>
+              <li>Open/close day workflows and reporting</li>
+            </ul>
+            <a href="http://spamanagement.righthookdata.com/" target="_blank" rel="noopener" class="app-link">Launch App →</a>
+          </div>
+        </div>
+
       </div>
     </div>
   </section>
