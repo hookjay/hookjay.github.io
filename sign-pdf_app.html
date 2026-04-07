@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Sign PDF</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400&family=DM+Sans:wght@400;500;600&display=swap');
+:root{--bg:#0f0f11;--sur:#17171a;--bdr:#2a2a30;--acc:#7eeab4;--adim:rgba(126,234,180,.1);--tx:#e8e8ec;--mu:#6b6b78;--red:#ff6b6b;--bl:#6eb5ff;--bldim:rgba(110,181,255,.13)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--tx);font-family:'DM Sans',sans-serif;display:flex;flex-direction:column;height:100vh;overflow:hidden;font-size:13px}
+
+/* header */
+header{padding:10px 16px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;gap:10px;background:var(--sur);flex-shrink:0}
+.logo{font-family:'DM Mono',monospace;font-size:10px;color:var(--acc);letter-spacing:.1em;text-transform:uppercase;white-space:nowrap}
+#fn{font-size:10px;font-family:'DM Mono',monospace;color:var(--acc);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.spacer{flex:1}
+.hbtn{padding:4px 11px;border-radius:5px;border:1px solid var(--bdr);background:var(--bg);color:var(--tx);font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:.15s;white-space:nowrap}
+.hbtn:hover{border-color:var(--acc);color:var(--acc)}
+#dlbtn{padding:4px 14px;border-radius:5px;border:none;background:var(--acc);color:#0a1a12;font-weight:600;font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap}
+#dlbtn:hover{background:#5dd99a}
+#dlbtn:disabled{opacity:.35;cursor:not-allowed}
+#pnav{display:flex;align-items:center;gap:5px;font-family:'DM Mono',monospace;font-size:10px;color:var(--mu)}
+#pnav button{background:none;border:1px solid var(--bdr);color:var(--tx);border-radius:3px;padding:2px 6px;cursor:pointer;font-size:11px}
+#pnav button:disabled{opacity:.3;cursor:not-allowed}
+
+/* layout */
+main{flex:1;display:grid;grid-template-columns:270px 1fr;min-height:0;overflow:hidden}
+
+/* sidebar */
+aside{border-right:1px solid var(--bdr);display:flex;flex-direction:column;overflow:hidden;background:var(--sur)}
+
+/* mode tabs */
+.tabs{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--bdr);flex-shrink:0}
+.tab{padding:9px;border:none;background:transparent;color:var(--mu);font-family:'DM Mono',monospace;font-size:10px;cursor:pointer;text-align:center;border-bottom:2px solid transparent;transition:.15s}
+.tab.sig{color:var(--acc);border-bottom-color:var(--acc);background:var(--adim)}
+.tab.txt{color:var(--bl);border-bottom-color:var(--bl);background:var(--bldim)}
+
+/* tool panels — fill remaining sidebar */
+#sig-panel,#txt-panel{flex:1;display:flex;flex-direction:column;padding:12px;gap:10px;overflow-y:auto}
+#txt-panel{display:none}
+
+/* ── SIGNATURE CANVAS — light background ── */
+#sc-wrap{background:#f5f5f3;border-radius:7px;border:1.5px solid #ccc;padding:4px;flex-shrink:0}
+#sc{display:block;width:100%;height:80px;cursor:crosshair;background:transparent}
+.sig-hint{font-size:10px;color:var(--mu);font-family:'DM Mono',monospace;text-align:center;margin-top:-4px}
+
+.row{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.sbtn{padding:4px 10px;border-radius:5px;border:1px solid var(--bdr);background:var(--bg);color:var(--tx);font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:.15s}
+.sbtn:hover{border-color:var(--acc);color:var(--acc)}
+.sbtn.red{border-color:var(--red);color:var(--red)}
+.szrow{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--mu)}
+.szrow input[type=range]{flex:1;accent-color:var(--acc)}
+.hint{font-size:10px;color:var(--mu);line-height:1.55;padding:7px 9px;border-radius:5px;border-left:2px solid var(--acc);background:var(--adim)}
+.hint.b{background:var(--bldim);border-left-color:var(--bl)}
+
+/* text tool */
+.lbl{font-size:10px;color:var(--mu);font-family:'DM Mono',monospace;margin-bottom:3px}
+#ti{background:#f5f5f3;border:1.5px solid var(--bl);border-radius:6px;color:#111;padding:7px 10px;font-size:13px;width:100%;outline:none;font-family:'DM Sans',sans-serif}
+#ti::placeholder{color:#999;font-size:11px}
+/* status box */
+#txtstatus{font-size:10px;font-family:'DM Mono',monospace;padding:5px 8px;border-radius:5px;background:var(--bldim);border:1px solid rgba(110,181,255,.25);color:var(--bl);word-break:break-all;display:none}
+.qbtns{display:flex;gap:5px;flex-wrap:wrap}
+.qb{padding:4px 9px;border-radius:5px;border:1px solid var(--bdr);background:var(--bg);color:var(--mu);font-size:10px;cursor:pointer;transition:.15s}
+.qb:hover{border-color:var(--bl);color:var(--bl)}
+.fsrow{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--mu)}
+.fsrow input[type=range]{flex:1;accent-color:var(--bl)}
+
+/* items strip */
+#istrip{display:flex;flex-direction:column;gap:4px}
+.ipill{display:flex;align-items:center;gap:5px;padding:4px 8px;background:rgba(110,181,255,.08);border:1px solid rgba(110,181,255,.2);border-radius:5px;font-size:10px;font-family:'DM Mono',monospace;color:var(--bl)}
+.ipill span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ipx{background:none;border:none;color:var(--mu);cursor:pointer;font-size:13px;line-height:1;padding:0 1px}
+.ipx:hover{color:var(--red)}
+
+/* canvas pane */
+.pane{display:flex;flex-direction:column;background:#09090b;overflow:hidden}
+#pscroll{flex:1;overflow:auto;display:flex;align-items:flex-start;justify-content:center;padding:16px}
+#pw{position:relative;display:inline-block;box-shadow:0 8px 36px rgba(0,0,0,.6)}
+#pc,#ov{display:block}
+#ov{position:absolute;top:0;left:0;pointer-events:none}
+#hit{position:absolute;top:0;left:0;width:100%;height:100%;cursor:crosshair}
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:var(--mu);width:100%}
+.empty svg{opacity:.2}.empty p{font-size:11px}
+
+/* toast */
+#toast{position:fixed;bottom:12px;right:12px;background:var(--sur);border:1px solid var(--acc);color:var(--acc);padding:6px 12px;border-radius:6px;font-size:10px;font-family:'DM Mono',monospace;opacity:0;transform:translateY(6px);transition:.2s;pointer-events:none;z-index:9999;max-width:240px}
+#toast.e{border-color:var(--red);color:var(--red)}
+#toast.on{opacity:1;transform:translateY(0)}
+</style>
+</head>
+<body>
+
+<header>
+  <span class="logo">sign.pdf</span>
+  <span style="color:var(--bdr)">│</span>
+  <button class="hbtn" onclick="document.getElementById('fi').click()">📄 Open PDF</button>
+  <input type="file" id="fi" accept="application/pdf" style="display:none">
+  <span id="fn" style="color:var(--mu)">No file loaded</span>
+  <div class="spacer"></div>
+  <div id="pnav">
+    <button id="pp" disabled onclick="goPage(-1)">‹</button>
+    <span id="pi">— / —</span>
+    <button id="np" disabled onclick="goPage(1)">›</button>
+  </div>
+  <button id="dlbtn" disabled onclick="doDownload()">↓ Download</button>
+</header>
+
+<main>
+  <aside>
+    <div class="tabs">
+      <button class="tab sig" id="tsig" onclick="setMode('sig')">✍ SIGNATURE</button>
+      <button class="tab" id="ttxt" onclick="setMode('txt')">T  ADD TEXT</button>
+    </div>
+
+    <!-- SIGNATURE PANEL -->
+    <div id="sig-panel">
+      <div>
+        <div class="lbl" style="margin-bottom:5px">Draw your signature</div>
+        <div id="sc-wrap">
+          <canvas id="sc" width="240" height="80"></canvas>
+        </div>
+        <div class="sig-hint">draw above with mouse or touch</div>
+      </div>
+      <div class="row">
+        <button class="sbtn red" onclick="clearSig()">↺ Clear</button>
+        <button class="sbtn" onclick="document.getElementById('cp').click()">
+          <span id="csw" style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#111;border:1px solid #555;vertical-align:middle;margin-right:3px"></span>Ink color
+        </button>
+        <input type="color" id="cp" value="#111111" style="display:none" oninput="penColor=this.value;document.getElementById('csw').style.background=this.value">
+      </div>
+      <div class="szrow">
+        <span style="white-space:nowrap">Stamp size</span>
+        <input type="range" id="ss" min="60" max="300" value="150" oninput="document.getElementById('ssl').textContent=this.value+'px'">
+        <span id="ssl" style="width:36px;text-align:right;white-space:nowrap">150px</span>
+      </div>
+      <div class="hint" id="sh">Draw your signature above, then click anywhere on the document to stamp it.</div>
+      <button class="sbtn red" id="rmsig" style="display:none;align-self:flex-start" onclick="removeSig()">✕ Remove signature</button>
+    </div>
+
+    <!-- TEXT PANEL -->
+    <div id="txt-panel">
+      <div>
+        <div class="lbl">Text to place</div>
+        <input type="text" id="ti" placeholder="Type here, or use quick-fill →" autocomplete="off" spellcheck="false">
+      </div>
+      <div class="qbtns">
+        <button class="qb" onclick="setTxt('Jay Hook')">Jay Hook</button>
+        <button class="qb" onclick="setTxt(todayDate())">Today's Date</button>
+        <button class="qb" onclick="setTxt('Principal')">Principal</button>
+      </div>
+      <div class="fsrow">
+        <span style="white-space:nowrap">Font size</span>
+        <input type="range" id="fsr" min="8" max="36" value="12" oninput="document.getElementById('fsl').textContent=this.value+'pt'">
+        <span id="fsl" style="width:34px;text-align:right">12pt</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;font-size:10px;color:var(--mu)">
+        <span>Color</span>
+        <input type="color" id="tc" value="#111111" style="width:24px;height:24px;border:none;border-radius:3px;cursor:pointer;padding:0;background:none">
+      </div>
+      <div id="txtstatus"></div>
+      <div class="hint b">Click anywhere on the PDF to stamp the text there. You can place multiple items.</div>
+      <div id="istrip"></div>
+    </div>
+  </aside>
+
+  <div class="pane">
+    <div id="pscroll">
+      <div class="empty" id="empty" style="min-height:300px">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <p>Open a PDF to get started</p>
+      </div>
+      <div id="pw" style="display:none">
+        <canvas id="pc"></canvas>
+        <canvas id="ov"></canvas>
+        <div id="hit"></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div id="toast"></div>
+
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+var pdfLibDoc=null,pdfJsDoc=null,pdfBytes=null;
+var curPage=1,totPages=0,SCALE=1.5;
+var mode='sig';
+var sigOK=false,placedSig=null,penColor='#111111';
+var items=[],itemId=1;
+
+// ── TEXT state — JS vars synced from inputs ──
+var curTxt='',curFs=12,curCol='#111111';
+
+document.getElementById('ti').addEventListener('input',function(){curTxt=this.value;updStatus();});
+document.getElementById('fsr').addEventListener('input',function(){curFs=parseInt(this.value);});
+document.getElementById('tc').addEventListener('input',function(){curCol=this.value;});
+
+function setTxt(v){curTxt=v;document.getElementById('ti').value=v;updStatus();}
+function todayDate(){return new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});}
+function updStatus(){
+  var el=document.getElementById('txtstatus');
+  if(curTxt.trim()){el.style.display='block';el.textContent='Ready to place: "'+curTxt.trim()+'"';}
+  else{el.style.display='none';}
+}
+
+// ── Sig canvas — internal size tracks CSS display size ──
+var SC=document.getElementById('sc');
+var sx=SC.getContext('2d');
+var dn=false,lx=0,ly=0;
+
+function initSigCtx(){sx.strokeStyle=penColor;sx.lineWidth=2;sx.lineCap='round';sx.lineJoin='round';}
+
+// Sync canvas internal size to its displayed size once layout is ready
+function syncSigSize(){
+  var wrap=document.getElementById('sc-wrap');
+  var w=wrap.clientWidth-8; // subtract padding
+  if(w>0&&SC.width!==w){SC.width=w;SC.height=80;initSigCtx();sigOK=false;}
+}
+window.addEventListener('resize',function(){syncSigSize();});
+setTimeout(syncSigSize,100);
+initSigCtx();
+
+function scPos(e){
+  var r=SC.getBoundingClientRect();
+  var src=e.touches?e.touches[0]:e;
+  return[src.clientX-r.left,src.clientY-r.top];
+}
+function ink(e){
+  var p=scPos(e);
+  sx.beginPath();sx.moveTo(lx,ly);sx.lineTo(p[0],p[1]);
+  sx.strokeStyle=penColor;sx.lineWidth=2;sx.lineCap='round';sx.lineJoin='round';
+  sx.stroke();lx=p[0];ly=p[1];sigOK=true;updDL();
+}
+SC.addEventListener('mousedown',function(e){syncSigSize();dn=true;var p=scPos(e);lx=p[0];ly=p[1];});
+SC.addEventListener('touchstart',function(e){e.preventDefault();syncSigSize();dn=true;var p=scPos(e);lx=p[0];ly=p[1];});
+SC.addEventListener('mousemove',function(e){if(dn)ink(e);});
+SC.addEventListener('touchmove',function(e){e.preventDefault();if(dn)ink(e);});
+['mouseup','mouseleave','touchend'].forEach(function(ev){SC.addEventListener(ev,function(){dn=false;});});
+
+function clearSig(){sx.clearRect(0,0,SC.width,SC.height);sigOK=false;placedSig=null;redraw();updDL();document.getElementById('rmsig').style.display='none';document.getElementById('sh').textContent='Draw your signature above, then click anywhere on the document to stamp it.';}
+function removeSig(){placedSig=null;redraw();updDL();document.getElementById('rmsig').style.display='none';}
+function sigStampPx(){return parseInt(document.getElementById('ss').value);}
+
+// ── Mode ──
+function setMode(m){
+  mode=m;
+  document.getElementById('tsig').className='tab'+(m==='sig'?' sig':'');
+  document.getElementById('ttxt').className='tab'+(m==='txt'?' txt':'');
+  document.getElementById('sig-panel').style.display=m==='sig'?'flex':'none';
+  document.getElementById('txt-panel').style.display=m==='txt'?'flex':'none';
+  if(m==='txt')setTimeout(function(){document.getElementById('ti').focus();},30);
+}
+
+// ── Upload ──
+document.getElementById('fi').addEventListener('change',function(e){loadFile(e.target.files[0]);});
+
+async function loadFile(file){
+  if(!file)return;
+  if(file.type!=='application/pdf'){toast('Please upload a PDF',true);return;}
+  try{
+    pdfBytes=await file.arrayBuffer();
+    document.getElementById('fn').textContent=file.name;
+    pdfLibDoc=await PDFLib.PDFDocument.load(pdfBytes);
+    totPages=pdfLibDoc.getPageCount();
+    pdfJsDoc=await pdfjsLib.getDocument({data:pdfBytes.slice()}).promise;
+    document.getElementById('empty').style.display='none';
+    document.getElementById('pw').style.display='inline-block';
+    curPage=1;placedSig=null;items=[];renderStrip();
+    await renderPage(curPage);
+    bindHit();
+    updNav();updDL();
+    toast('Loaded — '+totPages+' page'+(totPages===1?'':'s'));
+  }catch(err){toast('Error loading: '+err.message,true);console.error(err);}
+}
+
+// ── Render ──
+async function renderPage(n){
+  try{
+    var p=await pdfJsDoc.getPage(n);
+    var vp=p.getViewport({scale:SCALE});
+    var pc=document.getElementById('pc');
+    pc.width=vp.width;pc.height=vp.height;
+    var ov=document.getElementById('ov');
+    ov.width=vp.width;ov.height=vp.height;
+    document.getElementById('hit').style.cssText='position:absolute;top:0;left:0;width:'+vp.width+'px;height:'+vp.height+'px;cursor:crosshair';
+    await p.render({canvasContext:pc.getContext('2d'),viewport:vp}).promise;
+    redraw();
+  }catch(err){toast('Render error',true);}
+}
+async function goPage(d){var n=curPage+d;if(n<1||n>totPages)return;curPage=n;await renderPage(curPage);updNav();}
+function updNav(){document.getElementById('pi').textContent=curPage+' / '+totPages;document.getElementById('pp').disabled=curPage<=1;document.getElementById('np').disabled=curPage>=totPages;}
+
+// ── Hit ──
+function bindHit(){
+  var h=document.getElementById('hit');
+  var nh=h.cloneNode(false);
+  h.parentNode.replaceChild(nh,h);
+  nh.addEventListener('click',handleClick);
+}
+
+function handleClick(e){
+  try{
+    var hit=document.getElementById('hit');
+    var r=hit.getBoundingClientRect();
+    var cx=e.clientX-r.left, cy=e.clientY-r.top;
+    var pc=document.getElementById('pc');
+    var sz=pdfLibDoc.getPage(curPage-1).getSize();
+    var pW=sz.width, pH=sz.height;
+
+    if(mode==='sig'){
+      if(!sigOK){toast('Draw your signature first',true);return;}
+      if(placedSig){toast('Remove current signature first',true);return;}
+
+      // Stamp size in screen px (user-chosen)
+      var stampPx=sigStampPx();
+      // Sig canvas aspect ratio
+      var ar=SC.height/SC.width;
+      var stampH=stampPx*ar;
+
+      // Convert stamp top-left screen pos → PDF coords
+      // click = center of stamp
+      var screenX=cx-stampPx/2, screenY=cy-stampH/2;
+      var pdfX=(screenX/pc.width)*pW;
+      var pdfY=pH-((screenY+stampH)/pc.height)*pH;
+      var pdfW=(stampPx/pc.width)*pW;
+      var pdfH=(stampH/pc.height)*pH;
+
+      placedSig={
+        cx:screenX, cy:screenY, sw:stampPx, sh:stampH,
+        pdfX:pdfX, pdfY:pdfY, pdfW:pdfW, pdfH:pdfH, page:curPage
+      };
+      redraw();
+      document.getElementById('rmsig').style.display='block';
+      document.getElementById('sh').textContent='Placed on page '+curPage+'. Switch to Add Text to stamp your name/date.';
+      updDL();toast('Signature placed ✓');
+
+    }else{
+      var txt=curTxt.trim();
+      if(!txt){
+        toast('Type text in the sidebar first',true);
+        var inp=document.getElementById('ti');
+        inp.style.borderColor='var(--red)';inp.focus();
+        setTimeout(function(){inp.style.borderColor='var(--bl)';},1500);
+        return;
+      }
+      var fs=curFs||12;
+      var col=curCol||'#111111';
+      var pdfX2=(cx/pc.width)*pW;
+      var pdfY2=pH-(cy/pc.height)*pH;
+      items.push({id:itemId++,text:txt,fontSize:fs,color:col,page:curPage,pdfX:pdfX2,pdfY:pdfY2,sx:cx,sy:cy});
+      redraw();renderStrip();updDL();
+      toast('"'+txt+'" placed ✓');
+    }
+  }catch(err){toast('Error: '+err.message,true);console.error(err);}
+}
+
+// ── Overlay ──
+function redraw(){
+  var ov=document.getElementById('ov');
+  if(!ov||!ov.width)return;
+  var ctx=ov.getContext('2d');
+  ctx.clearRect(0,0,ov.width,ov.height);
+
+  if(placedSig&&placedSig.page===curPage){
+    // Draw with white bg so sig is visible
+    ctx.save();
+    ctx.fillStyle='rgba(255,255,255,0.0)'; // transparent — sig already has white from canvas wrap
+    ctx.fillRect(placedSig.cx,placedSig.cy,placedSig.sw,placedSig.sh);
+    ctx.drawImage(SC,placedSig.cx,placedSig.cy,placedSig.sw,placedSig.sh);
+    ctx.strokeStyle='rgba(126,234,180,.4)';ctx.lineWidth=1;ctx.setLineDash([4,3]);
+    ctx.strokeRect(placedSig.cx,placedSig.cy,placedSig.sw,placedSig.sh);
+    ctx.restore();
+  }
+
+  items.filter(function(it){return it.page===curPage;}).forEach(function(it){
+    ctx.save();
+    ctx.font=(it.fontSize*SCALE)+'px Helvetica,Arial,sans-serif';
+    ctx.fillStyle=it.color;
+    ctx.fillText(it.text,it.sx,it.sy);
+    ctx.restore();
+  });
+}
+
+// ── Strip ──
+function renderStrip(){
+  var el=document.getElementById('istrip');el.innerHTML='';
+  if(!items.length)return;
+  var hdr=document.createElement('div');
+  hdr.style.cssText='font-size:9px;color:var(--mu);font-family:"DM Mono",monospace;text-transform:uppercase;letter-spacing:.1em;margin-bottom:3px';
+  hdr.textContent='Placed text';el.appendChild(hdr);
+  items.forEach(function(it){
+    var d=document.createElement('div');d.className='ipill';
+    d.innerHTML='<span>p'+it.page+': '+esc(it.text)+'</span><button class="ipx" onclick="rmItem('+it.id+')">×</button>';
+    el.appendChild(d);
+  });
+}
+function rmItem(id){items=items.filter(function(it){return it.id!==id;});renderStrip();redraw();updDL();}
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;');}
+
+// ── Download ──
+async function doDownload(){
+  if(!pdfLibDoc)return;
+  try{
+    var fresh=await PDFLib.PDFDocument.load(pdfBytes);
+    if(placedSig&&sigOK){
+      // Capture sig on white bg for PDF
+      var tmp=document.createElement('canvas');
+      tmp.width=SC.width;tmp.height=SC.height;
+      var tc=tmp.getContext('2d');
+      tc.fillStyle='#ffffff';tc.fillRect(0,0,tmp.width,tmp.height);
+      tc.drawImage(SC,0,0);
+      var img=await fresh.embedPng(b64(tmp.toDataURL('image/png').split(',')[1]));
+      fresh.getPage(placedSig.page-1).drawImage(img,{x:placedSig.pdfX,y:placedSig.pdfY,width:placedSig.pdfW,height:placedSig.pdfH});
+    }
+    if(items.length){
+      var font=await fresh.embedFont(PDFLib.StandardFonts.Helvetica);
+      items.forEach(function(it){
+        var c=h2rgb(it.color);
+        fresh.getPage(it.page-1).drawText(it.text,{x:it.pdfX,y:it.pdfY,size:it.fontSize,font:font,color:PDFLib.rgb(c[0]/255,c[1]/255,c[2]/255)});
+      });
+    }
+    var out=await fresh.save();
+    var a=document.createElement('a');
+    a.href=URL.createObjectURL(new Blob([out],{type:'application/pdf'}));
+    a.download='signed.pdf';a.click();
+    toast('Downloaded ✓');
+  }catch(err){toast('Download error: '+err.message,true);console.error(err);}
+}
+
+function updDL(){
+  document.getElementById('dlbtn').disabled=!pdfJsDoc||(!( sigOK&&placedSig)&&!items.length);
+}
+function h2rgb(h){h=h.replace('#','');if(h.length===3)h=h[0]+h[0]+h[1]+h[1]+h[2]+h[2];return[parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)];}
+function b64(s){var b=atob(s),a=new Uint8Array(b.length);for(var i=0;i<b.length;i++)a[i]=b.charCodeAt(i);return a;}
+
+var tt=null;
+function toast(msg,err){var el=document.getElementById('toast');el.textContent=msg;el.className=(err?'e ':'')+'on';clearTimeout(tt);tt=setTimeout(function(){el.className='';},err?4000:2200);}
+</script>
+</body>
+</html>
